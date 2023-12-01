@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 
 import Card from '../components/card'
@@ -19,13 +20,19 @@ interface HomeProps {
 
 export default function Home({ beers }: HomeProps) {
   return (
-    <HomeContainer>
-      <h2>Customer Collection</h2>
+    <>
+      <Head>
+        <title>Home | Beer Collection</title>
+      </Head>
 
-      <BeerGrid>
-        {beers?.map((beer) => <Card key={beer.id} beer={beer} />)}
-      </BeerGrid>
-    </HomeContainer>
+      <HomeContainer>
+        <h2>Customer Collection</h2>
+
+        <BeerGrid>
+          {beers?.map((beer) => <Card key={beer.id} beer={beer} />)}
+        </BeerGrid>
+      </HomeContainer>
+    </>
   )
 }
 
