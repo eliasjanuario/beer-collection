@@ -1,7 +1,11 @@
 import Head from 'next/head'
-import { GetServerSideProps } from 'next'
+import { GetStaticProps } from 'next'
+
+import { useEffect } from 'react'
 
 import Card from '../components/card'
+
+import { useBeer } from '../contexts/BeerContext'
 
 import { getAllBeers } from '../services/beerService'
 
@@ -19,6 +23,14 @@ interface HomeProps {
 }
 
 export default function Home({ beers }: HomeProps) {
+  const { beers: contextBeers, saveBeers } = useBeer()
+
+  useEffect(() => {
+    if (contextBeers.length === 0) {
+      saveBeers(beers)
+    }
+  }, [beers, contextBeers.length, saveBeers])
+
   return (
     <>
       <Head>
@@ -29,14 +41,14 @@ export default function Home({ beers }: HomeProps) {
         <h2>Customer Collection</h2>
 
         <BeerGrid>
-          {beers?.map((beer) => <Card key={beer.id} beer={beer} />)}
+          {contextBeers?.map((beer) => <Card key={beer.id} beer={beer} />)}
         </BeerGrid>
       </HomeContainer>
     </>
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await getAllBeers()
 
   const beers = response.map((beer) => {
