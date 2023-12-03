@@ -11,6 +11,13 @@ export const HomeContainer = styled('main', {
   margin: '0 auto',
 })
 
+export const HomeHeader = styled('div', {
+  display: 'flex',
+  width: '100%',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+})
+
 export const BeerGrid = styled('div', {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',

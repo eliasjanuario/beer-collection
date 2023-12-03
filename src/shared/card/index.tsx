@@ -4,24 +4,26 @@ import {
   CardContainer,
   CardContent,
   CardFooter,
-} from '../../styles/components/card'
+} from '../../styles/shared/card'
 
 export interface CardProps {
   beer: {
-    id: string
+    id: number
     name: string
-    description: string
-    imageUrl: string
+    description?: string
+    imageUrl?: string
     firstBrewed: string
     abv: number
   }
 }
 
-export default function Card({ beer }: CardProps) {
+export function Card({ beer }: CardProps) {
   return (
     <CardContainer>
       <CardContent>
-        <Image src={beer.imageUrl} alt="" width={200} height={200} />
+        {beer.imageUrl && (
+          <Image src={beer.imageUrl} alt="" width={200} height={200} />
+        )}
         <h3>{beer.name}</h3>
       </CardContent>
 

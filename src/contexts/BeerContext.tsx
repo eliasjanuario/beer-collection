@@ -1,10 +1,10 @@
 import { ReactNode, createContext, useContext, useState } from 'react'
 
 interface Beer {
-  id: string
+  id: number
   name: string
-  description: string
-  imageUrl: string
+  description?: string
+  imageUrl?: string
   firstBrewed: string
   abv: number
 }
@@ -12,6 +12,7 @@ interface Beer {
 interface BeerContextType {
   beers: Beer[]
   saveBeers: (beers: Beer[]) => void
+  addBeer: (beer: object) => void
 }
 
 export const BeerContext = createContext<BeerContextType | undefined>(undefined)
@@ -28,9 +29,29 @@ export function BeerProvider({ children }: BeerProviderProps) {
     localStorage.setItem('beers', JSON.stringify(beers))
   }
 
+  function addBeer(beer: Beer) {
+    const normalizeBeerObject = {
+      id: beers.length + 1,
+      name: beer.name,
+      description: beer.description || null,
+      imageUrl: beer.imageUrl || null,
+      firstBrewed: beer.firstBrewed,
+      abv: beer.abv,
+    }
+
+    setBeers((prevBeers) => [...prevBeers, normalizeBeerObject])
+
+    const storedBeers = JSON.parse(localStorage.getItem('beers')) || []
+    localStorage.setItem(
+      'beers',
+      JSON.stringify([...storedBeers, normalizeBeerObject]),
+    )
+  }
+
   const value: BeerContextType = {
     beers,
     saveBeers,
+    addBeer,
   }
 
   return <BeerContext.Provider value={value}>{children}</BeerContext.Provider>

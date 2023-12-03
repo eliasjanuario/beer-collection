@@ -1,19 +1,21 @@
 import Head from 'next/head'
 import { GetStaticProps } from 'next'
-
-import { useEffect } from 'react'
-
-import Card from '../components/card'
+import { useEffect, useState } from 'react'
 
 import { useBeer } from '../contexts/BeerContext'
 
+import { Card } from '../shared/card'
+import { Modal } from '../shared/modal'
+import { Button } from '../shared/button'
+
+import { CreateForm } from '../components/create-form'
+
 import { getAllBeers } from '../services/beerService'
 
-import { BeerGrid, HomeContainer } from '../styles/pages/home'
-
+import { BeerGrid, HomeContainer, HomeHeader } from '../styles/pages/home'
 interface HomeProps {
   beers: {
-    id: string
+    id: number
     name: string
     description: string
     imageUrl: string
@@ -23,13 +25,19 @@ interface HomeProps {
 }
 
 export default function Home({ beers }: HomeProps) {
+  const [openModalCreateForm, setOpenModalCreateForm] = useState(false)
+
   const { beers: contextBeers, saveBeers } = useBeer()
 
   useEffect(() => {
-    if (contextBeers.length === 0) {
+    const storedBeers = JSON.parse(localStorage.getItem('beers')) || []
+
+    if (storedBeers.length === 0) {
       saveBeers(beers)
+    } else {
+      saveBeers(storedBeers)
     }
-  }, [beers, contextBeers.length, saveBeers])
+  }, [beers, saveBeers])
 
   return (
     <>
@@ -38,12 +46,25 @@ export default function Home({ beers }: HomeProps) {
       </Head>
 
       <HomeContainer>
-        <h2>Customer Collection</h2>
+        <HomeHeader>
+          <h2>Customer Collection</h2>
+          <Button
+            variant="outlined"
+            text="Add New Beer"
+            onClick={() => setOpenModalCreateForm(true)}
+          />
+        </HomeHeader>
 
         <BeerGrid>
           {contextBeers?.map((beer) => <Card key={beer.id} beer={beer} />)}
         </BeerGrid>
       </HomeContainer>
+
+      {openModalCreateForm && (
+        <Modal open={openModalCreateForm} setOpen={setOpenModalCreateForm}>
+          <CreateForm setOpenModalCreateForm={setOpenModalCreateForm} />
+        </Modal>
+      )}
     </>
   )
 }
