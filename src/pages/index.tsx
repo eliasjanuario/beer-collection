@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react'
 
 import { useBeer } from '../contexts/BeerContext'
@@ -9,35 +9,50 @@ import { Modal } from '../shared/modal'
 import { Button } from '../shared/button'
 
 import { CreateForm } from '../components/create-form'
+import { BeerDetails } from '../components/beer-details'
 
 import { getAllBeers } from '../services/beerService'
 
 import { BeerGrid, HomeContainer, HomeHeader } from '../styles/pages/home'
+
+interface Beer {
+  id: number
+  name: string
+  description?: string
+  imageUrl?: string
+  firstBrewed: string
+  abv: number
+  brewersTips?: string
+}
+
 interface HomeProps {
-  beers: {
-    id: number
-    name: string
-    description: string
-    imageUrl: string
-    firstBrewed: string
-    abv: number
-  }[]
+  beers: Beer[]
+}
+
+interface ModalDetailsState {
+  isOpen: boolean
+  beer: Beer | null
 }
 
 export default function Home({ beers }: HomeProps) {
-  const [openModalCreateForm, setOpenModalCreateForm] = useState(false)
+  const [openModalCreateForm, setOpenModalCreateForm] = useState<boolean>(false)
+  const [openModalDetails, setOpenModalDetails] = useState<ModalDetailsState>({
+    isOpen: false,
+    beer: null,
+  })
 
   const { beers: contextBeers, saveBeers } = useBeer()
 
   useEffect(() => {
+    const beerKeyExists = localStorage.getItem('beers') !== null
     const storedBeers = JSON.parse(localStorage.getItem('beers')) || []
 
-    if (storedBeers.length === 0) {
-      saveBeers(beers)
-    } else {
+    if (beerKeyExists && contextBeers.length === 0) {
       saveBeers(storedBeers)
+    } else if (!beerKeyExists && contextBeers.length === 0) {
+      saveBeers(beers)
     }
-  }, [beers, saveBeers])
+  }, [contextBeers, saveBeers, beers])
 
   return (
     <>
@@ -56,7 +71,13 @@ export default function Home({ beers }: HomeProps) {
         </HomeHeader>
 
         <BeerGrid>
-          {contextBeers?.map((beer) => <Card key={beer.id} beer={beer} />)}
+          {contextBeers?.map((beer) => (
+            <Card
+              key={beer.id}
+              beer={beer}
+              onClick={() => setOpenModalDetails({ isOpen: true, beer })}
+            />
+          ))}
         </BeerGrid>
       </HomeContainer>
 
@@ -65,11 +86,17 @@ export default function Home({ beers }: HomeProps) {
           <CreateForm setOpenModalCreateForm={setOpenModalCreateForm} />
         </Modal>
       )}
+
+      {openModalDetails.isOpen && (
+        <Modal open={openModalDetails.isOpen} setOpen={setOpenModalDetails}>
+          <BeerDetails beer={openModalDetails.beer} />
+        </Modal>
+      )}
     </>
   )
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const response = await getAllBeers()
 
   const beers = response.map((beer) => {
@@ -80,6 +107,8 @@ export const getStaticProps: GetStaticProps = async () => {
       imageUrl: beer.image_url,
       firstBrewed: beer.first_brewed,
       abv: beer.abv,
+      foodPairing: beer.food_pairing,
+      brewersTips: beer.brewers_tips,
     }
   })
 

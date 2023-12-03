@@ -14,12 +14,14 @@ export interface CardProps {
     imageUrl?: string
     firstBrewed: string
     abv: number
+    brewersTips?: string
   }
+  onClick: () => void
 }
 
-export function Card({ beer }: CardProps) {
+export function Card({ beer, onClick }: CardProps) {
   return (
-    <CardContainer>
+    <CardContainer onClick={onClick}>
       <CardContent>
         {beer.imageUrl && (
           <Image src={beer.imageUrl} alt="" width={200} height={200} />
