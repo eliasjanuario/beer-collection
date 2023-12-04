@@ -179,7 +179,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       firstBrewed: beer.first_brewed,
       abv: beer.abv,
       foodPairing: beer.food_pairing,
-      brewersTips: beer.brewers_tips,
+      tips: beer.brewers_tips,
     }
   })
 

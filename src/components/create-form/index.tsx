@@ -1,12 +1,20 @@
 import * as yup from 'yup'
 import { useFormik } from 'formik'
-import { InputAdornment, TextField } from '@mui/material'
+import {
+  IconButton,
+  InputAdornment,
+  List,
+  ListItem,
+  TextField,
+} from '@mui/material'
 
 import { Button } from '../../shared/button'
 
 import { useBeer } from '../../contexts/BeerContext'
 
 import { FormContainer } from '../../styles/components/create-form'
+import { AddCircleOutline, DeleteOutline } from '@mui/icons-material'
+import { useState } from 'react'
 
 const validationSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -21,9 +29,14 @@ const validationSchema = yup.object({
     .number()
     .min(0, 'ABV should be minimum 0')
     .required('ABV is required'),
+  description: yup.string(),
+  tips: yup.string(),
+  foodPairing: yup.string(),
 })
 
 export function CreateForm({ setOpenModalCreateForm }) {
+  const [foodPairingValue, setFoodPairingValue] = useState([])
+
   const { addBeer } = useBeer()
 
   const formik = useFormik({
@@ -31,13 +44,37 @@ export function CreateForm({ setOpenModalCreateForm }) {
       name: '',
       firstBrewed: '',
       abv: '',
+      description: '',
+      foodPairing: '',
+      tips: '',
     },
     validationSchema,
     onSubmit: (values) => {
-      addBeer(values)
+      const newBeerData = {
+        name: values.name,
+        firstBrewed: values.firstBrewed,
+        abv: values.abv,
+        description: values.description,
+        foodPairing: foodPairingValue,
+        tips: values.tips,
+      }
+
+      addBeer(newBeerData)
       setOpenModalCreateForm(false)
     },
   })
+
+  function handleFoodPairing(value) {
+    formik.values.foodPairing = ''
+    setFoodPairingValue((prevFoodPairing) => [...prevFoodPairing, value])
+  }
+
+  function handleDeleteFoodPairing(index) {
+    const newArray = [...foodPairingValue]
+    newArray.splice(index, 1)
+
+    setFoodPairingValue(newArray)
+  }
 
   return (
     <FormContainer onSubmit={formik.handleSubmit}>
@@ -88,6 +125,77 @@ export function CreateForm({ setOpenModalCreateForm }) {
           shrink: true,
         }}
       />
+
+      <TextField
+        id="description"
+        label="Description"
+        value={formik.values.description}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.description && Boolean(formik.errors.description)}
+        helperText={formik.touched.abv && formik.errors.abv}
+        fullWidth
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+
+      <TextField
+        id="tips"
+        label="Tips"
+        value={formik.values.tips}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.tips && Boolean(formik.errors.tips)}
+        helperText={formik.touched.abv && formik.errors.abv}
+        fullWidth
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+
+      <TextField
+        id="foodPairing"
+        label="Food Pairing"
+        value={formik.values.foodPairing}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        placeholder="Add a Food Pairing"
+        fullWidth
+        InputLabelProps={{
+          shrink: true,
+        }}
+        InputProps={{
+          endAdornment: (
+            <IconButton
+              aria-label="search"
+              onClick={() => handleFoodPairing(formik.values.foodPairing)}
+            >
+              <AddCircleOutline />
+            </IconButton>
+          ),
+        }}
+      />
+
+      {foodPairingValue?.length > 0 && (
+        <List>
+          <h4>List of Food Pairing</h4>
+          {foodPairingValue.map((food, index) => (
+            <ListItem
+              key={index}
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete">
+                  <DeleteOutline
+                    onClick={() => handleDeleteFoodPairing(index)}
+                  />
+                </IconButton>
+              }
+            >
+              {food}
+            </ListItem>
+          ))}
+        </List>
+      )}
 
       <Button type="submit" text="Save" />
     </FormContainer>

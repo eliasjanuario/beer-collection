@@ -7,6 +7,8 @@ interface Beer {
   imageUrl?: string
   firstBrewed: string
   abv: number
+  foodPairing?: [string]
+  tips?: string
 }
 
 interface BeerContextType {
@@ -39,6 +41,8 @@ export function BeerProvider({ children }: BeerProviderProps) {
       imageUrl: beer.imageUrl || null,
       firstBrewed: beer.firstBrewed,
       abv: beer.abv,
+      foodPairing: beer.foodPairing,
+      tips: beer.tips,
     }
 
     setBeers((prevBeers) => [...prevBeers, normalizeBeerObject])

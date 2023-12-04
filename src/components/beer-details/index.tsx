@@ -13,7 +13,7 @@ interface BeerDetailsProps {
     imageUrl?: string
     firstBrewed: string
     abv: number
-    brewersTips?: string
+    tips?: string
     foodPairing?: [string]
   }
 }
@@ -21,7 +21,9 @@ interface BeerDetailsProps {
 export function BeerDetails({ beer }: BeerDetailsProps) {
   return (
     <DetailsContainer>
-      <Image src={beer.imageUrl} alt="" width={200} height="500" />
+      {beer.imageUrl && (
+        <Image src={beer.imageUrl} alt="" width={200} height="500" />
+      )}
 
       <DetailsContent>
         <h1>
@@ -35,19 +37,21 @@ export function BeerDetails({ beer }: BeerDetailsProps) {
 
         <div>
           <h4>Description:</h4>
-          <p>{beer.description}</p>
+          <p>{beer.description || 'No Description Yet.'}</p>
         </div>
 
         <div>
           <h4>Food Pairing:</h4>
-          {beer.foodPairing.map((food, index) => (
-            <p key={index}>{food}</p>
-          ))}
+          {beer.foodPairing?.length > 0 ? (
+            beer.foodPairing.map((food, index) => <p key={index}>{food}</p>)
+          ) : (
+            <p>{'No Food Pairing Yet.'}</p>
+          )}
         </div>
 
         <div>
           <h4>Tips:</h4>
-          <p>{beer.brewersTips || 'No Tips Yet.'}</p>
+          <p>{beer.tips || 'No Tips Yet.'}</p>
         </div>
       </DetailsContent>
     </DetailsContainer>
