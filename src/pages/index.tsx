@@ -2,6 +2,17 @@ import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react'
 
+import {
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material'
+
+import SearchIcon from '@mui/icons-material/Search'
+
 import { useBeer } from '../contexts/BeerContext'
 
 import { Card } from '../shared/card'
@@ -13,7 +24,12 @@ import { BeerDetails } from '../components/beer-details'
 
 import { getAllBeers } from '../services/beerService'
 
-import { BeerGrid, HomeContainer, HomeHeader } from '../styles/pages/home'
+import {
+  BeerGrid,
+  HomeContainer,
+  HomeHeader,
+  ActionsContainer,
+} from '../styles/pages/home'
 
 interface Beer {
   id: number
@@ -41,7 +57,10 @@ export default function Home({ beers }: HomeProps) {
     beer: null,
   })
 
-  const { beers: contextBeers, saveBeers } = useBeer()
+  const [loading, setLoading] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
+
+  const { beers: contextBeers, saveBeers, sortBeers, filterBeers } = useBeer()
 
   useEffect(() => {
     const beerKeyExists = localStorage.getItem('beers') !== null
@@ -53,6 +72,21 @@ export default function Home({ beers }: HomeProps) {
       saveBeers(beers)
     }
   }, [contextBeers, saveBeers, beers])
+
+  function handleSortChange(event) {
+    sortBeers(event.target.value)
+  }
+
+  let searchTimer
+  function handleSearchChange() {
+    clearTimeout(searchTimer)
+
+    setLoading(true)
+    searchTimer = setTimeout(() => {
+      filterBeers(searchValue)
+      setLoading(false)
+    }, 1000)
+  }
 
   return (
     <>
@@ -69,6 +103,43 @@ export default function Home({ beers }: HomeProps) {
             onClick={() => setOpenModalCreateForm(true)}
           />
         </HomeHeader>
+
+        <ActionsContainer>
+          <TextField
+            label="Search"
+            variant="outlined"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            disabled={loading}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <>
+                  {loading && 'Loading...'}
+                  <IconButton aria-label="search" onClick={handleSearchChange}>
+                    <SearchIcon />
+                  </IconButton>
+                </>
+              ),
+            }}
+          />
+
+          <FormControl fullWidth>
+            <InputLabel id="orderByLabel">Order by</InputLabel>
+            <Select
+              labelId="orderByLabel"
+              id="selectOrder"
+              label="Order by"
+              defaultValue=""
+              onChange={handleSortChange}
+              disabled={loading}
+            >
+              <MenuItem value="abv">ABV</MenuItem>
+              <MenuItem value="name">Name</MenuItem>
+              <MenuItem value="firstBrewed">First Brewed</MenuItem>
+            </Select>
+          </FormControl>
+        </ActionsContainer>
 
         <BeerGrid>
           {contextBeers?.map((beer) => (

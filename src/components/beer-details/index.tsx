@@ -19,8 +19,6 @@ interface BeerDetailsProps {
 }
 
 export function BeerDetails({ beer }: BeerDetailsProps) {
-  console.log(beer)
-
   return (
     <DetailsContainer>
       <Image src={beer.imageUrl} alt="" width={200} height="500" />

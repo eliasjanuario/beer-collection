@@ -18,6 +18,12 @@ export const HomeHeader = styled('div', {
   justifyContent: 'space-between',
 })
 
+export const ActionsContainer = styled('div', {
+  display: 'flex',
+  padding: '1rem 0',
+  gap: '0.5rem',
+})
+
 export const BeerGrid = styled('div', {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
