@@ -36,6 +36,7 @@ const validationSchema = yup.object({
 
 export function CreateForm({ setOpenModalCreateForm }) {
   const [foodPairingValue, setFoodPairingValue] = useState([])
+  const [imageFile, setImageFile] = useState<File>()
 
   const { addBeer } = useBeer()
 
@@ -47,20 +48,38 @@ export function CreateForm({ setOpenModalCreateForm }) {
       description: '',
       foodPairing: '',
       tips: '',
+      imageUrl: '',
     },
     validationSchema,
-    onSubmit: (values) => {
-      const newBeerData = {
-        name: values.name,
-        firstBrewed: values.firstBrewed,
-        abv: values.abv,
-        description: values.description,
-        foodPairing: foodPairingValue,
-        tips: values.tips,
-      }
+    onSubmit: async (values) => {
+      if (imageFile) {
+        const formData = new FormData()
+        formData.append('myfile', imageFile)
 
-      addBeer(newBeerData)
-      setOpenModalCreateForm(false)
+        const response = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (response.ok) {
+          const image = await response.text()
+          const cleanImageName = image.replace(/"/g, '')
+
+          const newBeerData = {
+            name: values.name,
+            firstBrewed: values.firstBrewed,
+            abv: values.abv,
+            description: values.description,
+            foodPairing: foodPairingValue,
+            tips: values.tips,
+            imageUrl: `http://localhost:3000/images/${cleanImageName}`,
+          }
+
+          console.log(newBeerData)
+          addBeer(newBeerData)
+          setOpenModalCreateForm(false)
+        }
+      }
     },
   })
 
@@ -196,6 +215,16 @@ export function CreateForm({ setOpenModalCreateForm }) {
           ))}
         </List>
       )}
+
+      <input
+        id="image"
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files[0]
+          setImageFile(file)
+        }}
+      />
 
       <Button type="submit" text="Save" />
     </FormContainer>
