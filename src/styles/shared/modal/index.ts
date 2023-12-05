@@ -1,6 +1,8 @@
 import { styled } from '../..'
 
 export const ModalContainer = styled('div', {
+  // NOTE: This code snippet was not entirely written by me.
+  // It includes contributions of Documentations or sections authored by others.
   '.MuiBox-root': {
     position: 'absolute',
     top: '50%',
@@ -12,6 +14,7 @@ export const ModalContainer = styled('div', {
     background: '$white',
     padding: '1rem',
     overflow: 'auto',
+    // ----------------------------------------------------------------------------
 
     '@media only screen and (max-width: 768px)': {
       width: '90%',

@@ -33,10 +33,13 @@ const validationSchema = yup.object({
   name: yup.string().required('Name is required'),
   firstBrewed: yup
     .string()
+    // NOTE: This code snippet was not entirely written by me.
+    // It includes contributions of Documentations or sections authored by others.
     .matches(
       /^(0[1-9]|1[0-2])\/(19\d{2}|20[01]\d|202[0-3])$/,
       'Invalid date format (MM/YYYY)',
     )
+    // ---------------------------------------------------------------------------
     .required('First Brewed is required'),
   abv: yup
     .number()
@@ -67,8 +70,11 @@ export function CreateForm({ setOpenModalCreateForm }: CreateForm) {
   const { addBeer } = useBeer()
 
   async function handleOnSubmit(values: FormValues) {
+    // NOTE: This code snippet was not entirely written by me.
+    // It includes contributions of Documentations or sections authored by others.
     const formData = new FormData()
     formData.append('myfile', imageFile)
+    // ---------------------------------------------------------------------------
 
     const response = await postBeerImage(formData)
 

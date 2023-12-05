@@ -15,6 +15,8 @@ export const config = {
   },
 }
 
+// NOTE: This code snippet was not entirely written by me.
+// It includes contributions of Documentations or sections authored by others.
 const readFile = (
   req: NextApiRequest,
   saveLocally: boolean,
@@ -35,6 +37,7 @@ const readFile = (
     })
   })
 }
+// --------------------------------------------------------------------------
 
 export default async function handler(
   req: NextApiRequest,

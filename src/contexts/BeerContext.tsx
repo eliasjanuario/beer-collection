@@ -73,6 +73,8 @@ export function BeerProvider({ children }: BeerProviderProps) {
   }
 
   function sortBeers(sortBy: 'name' | 'firstBrewed' | 'abv'): void {
+    // NOTE: This code snippet was not entirely written by me.
+    // It includes contributions of Documentations or sections authored by others.
     const sortedBeers = beers.slice().sort((a, b) => {
       if (sortBy === 'name') {
         return a.name.localeCompare(b.name)
@@ -90,6 +92,7 @@ export function BeerProvider({ children }: BeerProviderProps) {
 
       return 0
     })
+    // ----------------------------------------------------------------------------
 
     setBeers(sortedBeers)
   }
