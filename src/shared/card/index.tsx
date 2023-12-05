@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { memo } from 'react'
 
 import {
   CardContainer,
@@ -11,7 +12,7 @@ export interface CardProps {
     id: number
     name: string
     description?: string
-    imageUrl?: string
+    imageUrl: string
     firstBrewed: string
     abv: number
     brewersTips?: string
@@ -20,12 +21,23 @@ export interface CardProps {
 }
 
 export function Card({ beer, onClick }: CardProps) {
+  const MemoizedImage = memo(function MyComponent() {
+    return (
+      beer.imageUrl && (
+        <Image
+          src={beer.imageUrl}
+          alt={`Image of ${beer.name}`}
+          width={150}
+          height={400}
+        />
+      )
+    )
+  })
+
   return (
     <CardContainer onClick={onClick}>
       <CardContent>
-        {beer.imageUrl && (
-          <Image src={beer.imageUrl} alt="" width={200} height={200} />
-        )}
+        <MemoizedImage />
         <h3>{beer.name}</h3>
       </CardContent>
 

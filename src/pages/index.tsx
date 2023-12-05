@@ -3,6 +3,7 @@ import { GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react'
 
 import {
+  Button,
   FormControl,
   IconButton,
   InputLabel,
@@ -17,7 +18,6 @@ import { useBeer } from '../contexts/BeerContext'
 
 import { Card } from '../shared/card'
 import { Modal } from '../shared/modal'
-import { Button } from '../shared/button'
 
 import { CreateForm } from '../components/create-form'
 import { BeerDetails } from '../components/beer-details'
@@ -35,7 +35,7 @@ interface Beer {
   id: number
   name: string
   description?: string
-  imageUrl?: string
+  imageUrl: string
   firstBrewed: string
   abv: number
   brewersTips?: string
@@ -73,12 +73,12 @@ export default function Home({ beers }: HomeProps) {
     }
   }, [contextBeers, saveBeers, beers])
 
-  function handleSortChange(event) {
+  function handleSortChange(event): void {
     sortBeers(event.target.value)
   }
 
   let searchTimer
-  function handleSearchChange() {
+  function handleSearchChange(): void {
     clearTimeout(searchTimer)
 
     setLoading(true)
@@ -99,9 +99,10 @@ export default function Home({ beers }: HomeProps) {
           <h2>Customer Collection</h2>
           <Button
             variant="outlined"
-            text="Add New Beer"
             onClick={() => setOpenModalCreateForm(true)}
-          />
+          >
+            Add New Beer
+          </Button>
         </HomeHeader>
 
         <ActionsContainer>

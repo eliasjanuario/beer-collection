@@ -1,11 +1,13 @@
 import { styled } from '../..'
 
 export const CardContainer = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'end',
+
   backgroundColor: '$white',
   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-
   padding: '1rem',
-
   borderRadius: '8px',
   overflow: 'hidden',
   transition: 'transform 0.2s ease-in-out',

@@ -4,10 +4,10 @@ interface Beer {
   id: number
   name: string
   description?: string
-  imageUrl?: string
+  imageUrl: string
   firstBrewed: string
   abv: number
-  foodPairing?: [string]
+  foodPairing?: string[]
   tips?: string
 }
 

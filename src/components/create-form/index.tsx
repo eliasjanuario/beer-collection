@@ -1,6 +1,10 @@
 import * as yup from 'yup'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { useFormik } from 'formik'
+
+import { AddCircleOutline, DeleteOutline } from '@mui/icons-material'
 import {
+  Button,
   IconButton,
   InputAdornment,
   List,
@@ -8,13 +12,22 @@ import {
   TextField,
 } from '@mui/material'
 
-import { Button } from '../../shared/button'
+import { ImageUpload } from '../../shared/image-upload'
 
 import { useBeer } from '../../contexts/BeerContext'
 
+import { postBeerImage } from '../../services/beerService'
+
 import { FormContainer } from '../../styles/components/create-form'
-import { AddCircleOutline, DeleteOutline } from '@mui/icons-material'
-import { useState } from 'react'
+
+interface FormValues {
+  name: string
+  firstBrewed: string
+  abv: string
+  description: string
+  foodPairing: string
+  tips: string
+}
 
 const validationSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -34,69 +47,78 @@ const validationSchema = yup.object({
   foodPairing: yup.string(),
 })
 
-export function CreateForm({ setOpenModalCreateForm }) {
-  const [foodPairingValue, setFoodPairingValue] = useState([])
-  const [imageFile, setImageFile] = useState<File>()
+const initialFormValues = {
+  name: '',
+  firstBrewed: '',
+  abv: '',
+  description: '',
+  foodPairing: '',
+  tips: '',
+}
+
+interface CreateForm {
+  setOpenModalCreateForm: Dispatch<SetStateAction<boolean>>
+}
+
+export function CreateForm({ setOpenModalCreateForm }: CreateForm) {
+  const [foodPairingValue, setFoodPairingValue] = useState<string[]>([])
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   const { addBeer } = useBeer()
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      firstBrewed: '',
-      abv: '',
-      description: '',
-      foodPairing: '',
-      tips: '',
-      imageUrl: '',
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      if (imageFile) {
-        const formData = new FormData()
-        formData.append('myfile', imageFile)
+  async function handleOnSubmit(values: FormValues) {
+    const formData = new FormData()
+    formData.append('myfile', imageFile)
 
-        const response = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData,
-        })
+    const response = await postBeerImage(formData)
 
-        if (response.ok) {
-          const image = await response.text()
-          const cleanImageName = image.replace(/"/g, '')
+    if (response.ok) {
+      const image = await response.text()
+      const cleanImageName = image.replace(/"/g, '')
 
-          const newBeerData = {
-            name: values.name,
-            firstBrewed: values.firstBrewed,
-            abv: values.abv,
-            description: values.description,
-            foodPairing: foodPairingValue,
-            tips: values.tips,
-            imageUrl: `http://localhost:3000/images/${cleanImageName}`,
-          }
-
-          console.log(newBeerData)
-          addBeer(newBeerData)
-          setOpenModalCreateForm(false)
-        }
+      const newBeerData = {
+        name: values.name,
+        firstBrewed: values.firstBrewed,
+        abv: values.abv,
+        description: values.description,
+        foodPairing: foodPairingValue,
+        tips: values.tips,
+        imageUrl: `http://localhost:3000/images/${cleanImageName}`,
       }
-    },
-  })
 
-  function handleFoodPairing(value) {
+      addBeer(newBeerData)
+      setOpenModalCreateForm(false)
+    }
+  }
+
+  function handleFoodPairing(value: string): void {
     formik.values.foodPairing = ''
     setFoodPairingValue((prevFoodPairing) => [...prevFoodPairing, value])
   }
 
-  function handleDeleteFoodPairing(index) {
+  function handleDeleteFoodPairing(index: number): void {
     const newArray = [...foodPairingValue]
     newArray.splice(index, 1)
 
     setFoodPairingValue(newArray)
   }
 
+  const formik = useFormik<FormValues>({
+    initialValues: initialFormValues,
+    validationSchema,
+    onSubmit: handleOnSubmit,
+  })
+
   return (
     <FormContainer onSubmit={formik.handleSubmit}>
+      <h3>Upload an Image to Continue</h3>
+
+      <ImageUpload
+        id="image"
+        imageFile={imageFile}
+        setImageFile={setImageFile}
+      />
+
       <h3>Add New Customer Beer</h3>
 
       <TextField
@@ -111,39 +133,48 @@ export function CreateForm({ setOpenModalCreateForm }) {
         InputLabelProps={{
           shrink: true,
         }}
+        disabled={!imageFile}
       />
 
-      <TextField
-        id="firstBrewed"
-        label="First Brewed"
-        value={formik.values.firstBrewed}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.firstBrewed && Boolean(formik.errors.firstBrewed)}
-        helperText={formik.touched.firstBrewed && formik.errors.firstBrewed}
-        fullWidth
-        InputLabelProps={{
-          shrink: true,
-        }}
-        InputProps={{
-          endAdornment: <InputAdornment position="end">MM/YYYY</InputAdornment>,
-        }}
-      />
+      <div className="row">
+        <TextField
+          id="firstBrewed"
+          label="First Brewed"
+          value={formik.values.firstBrewed}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={
+            formik.touched.firstBrewed && Boolean(formik.errors.firstBrewed)
+          }
+          helperText={formik.touched.firstBrewed && formik.errors.firstBrewed}
+          fullWidth
+          InputLabelProps={{
+            shrink: true,
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">MM/YYYY</InputAdornment>
+            ),
+          }}
+          disabled={!imageFile}
+        />
 
-      <TextField
-        id="abv"
-        label="ABV"
-        value={formik.values.abv}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.abv && Boolean(formik.errors.abv)}
-        helperText={formik.touched.abv && formik.errors.abv}
-        type="number"
-        fullWidth
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
+        <TextField
+          id="abv"
+          label="ABV"
+          value={formik.values.abv}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.abv && Boolean(formik.errors.abv)}
+          helperText={formik.touched.abv && formik.errors.abv}
+          type="number"
+          fullWidth
+          InputLabelProps={{
+            shrink: true,
+          }}
+          disabled={!imageFile}
+        />
+      </div>
 
       <TextField
         id="description"
@@ -157,6 +188,7 @@ export function CreateForm({ setOpenModalCreateForm }) {
         InputLabelProps={{
           shrink: true,
         }}
+        disabled={!imageFile}
       />
 
       <TextField
@@ -171,6 +203,7 @@ export function CreateForm({ setOpenModalCreateForm }) {
         InputLabelProps={{
           shrink: true,
         }}
+        disabled={!imageFile}
       />
 
       <TextField
@@ -189,11 +222,13 @@ export function CreateForm({ setOpenModalCreateForm }) {
             <IconButton
               aria-label="search"
               onClick={() => handleFoodPairing(formik.values.foodPairing)}
+              disabled={!imageFile || formik.values.foodPairing === ''}
             >
               <AddCircleOutline />
             </IconButton>
           ),
         }}
+        disabled={!imageFile}
       />
 
       {foodPairingValue?.length > 0 && (
@@ -216,17 +251,13 @@ export function CreateForm({ setOpenModalCreateForm }) {
         </List>
       )}
 
-      <input
-        id="image"
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files[0]
-          setImageFile(file)
-        }}
-      />
-
-      <Button type="submit" text="Save" />
+      {imageFile && (
+        <div className="formActions">
+          <Button type="submit" fullWidth>
+            Save
+          </Button>
+        </div>
+      )}
     </FormContainer>
   )
 }

@@ -15,7 +15,6 @@ export const {
       white: '#FFF',
       gray2: '#C4C4CC',
       gray1: '#333333',
-      black: '#121214',
       yellow: '#FDEBA9',
     },
   },

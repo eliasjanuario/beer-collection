@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { memo } from 'react'
 
 import {
   DetailsContainer,
@@ -10,20 +11,38 @@ interface BeerDetailsProps {
     id: number
     name: string
     description?: string
-    imageUrl?: string
+    imageUrl: string
     firstBrewed: string
     abv: number
     tips?: string
-    foodPairing?: [string]
+    foodPairing?: string[]
   }
 }
 
 export function BeerDetails({ beer }: BeerDetailsProps) {
+  function renderFoodPairing() {
+    if (beer.foodPairing?.length > 0) {
+      return beer.foodPairing.map((food, index) => <p key={index}>{food}</p>)
+    }
+    return <p>No Food Pairing Yet.</p>
+  }
+
+  const MemoizedImage = memo(function MyComponent() {
+    return (
+      beer.imageUrl && (
+        <Image
+          src={beer.imageUrl}
+          alt={`Image of ${beer.name}`}
+          width={150}
+          height={350}
+        />
+      )
+    )
+  })
+
   return (
     <DetailsContainer>
-      {beer.imageUrl && (
-        <Image src={beer.imageUrl} alt="" width={200} height="500" />
-      )}
+      <MemoizedImage />
 
       <DetailsContent>
         <h1>
@@ -42,11 +61,7 @@ export function BeerDetails({ beer }: BeerDetailsProps) {
 
         <div>
           <h4>Food Pairing:</h4>
-          {beer.foodPairing?.length > 0 ? (
-            beer.foodPairing.map((food, index) => <p key={index}>{food}</p>)
-          ) : (
-            <p>{'No Food Pairing Yet.'}</p>
-          )}
+          {renderFoodPairing()}
         </div>
 
         <div>

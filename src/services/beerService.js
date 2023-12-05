@@ -10,3 +10,16 @@ export async function getAllBeers(page = 1, pageSize = 15) {
     throw error
   }
 }
+
+export async function postBeerImage(formData) {
+  try {
+    const response = await fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData,
+    })
+    return response
+  } catch (error) {
+    console.error('Error Handling Image:', error)
+    throw error
+  }
+}

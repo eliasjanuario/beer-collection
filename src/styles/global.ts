@@ -16,4 +16,20 @@ export const globalStyles = globalCss({
     fontFamily: 'Roboto',
     fontWeight: 400,
   },
+
+  img: {
+    objectFit: 'contain',
+  },
+
+  '.MuiButtonBase-root': {
+    background: '$gray1',
+    color: '$yellow',
+    borderColor: '$gray1',
+
+    '&:hover': {
+      background: '$yellow',
+      color: '$gray1',
+      borderColor: '$gray1',
+    },
+  },
 })
